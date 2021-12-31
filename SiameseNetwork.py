@@ -1,13 +1,21 @@
 import tensorflow as tf
 
-def ContrastiveLoss(y_true, y_pred):
-    margin=1.
+def SiameseAccuracy(threshold=1.):
+    def Accuracy(y_true, y_pred):
+        temp=tf.cast(y_pred<threshold,tf.float32)
+        return 1.-tf.reduce_mean(tf.abs(y_true-temp))
 
-    positive_pair=tf.math.square(y_pred)
-    negative_pair=tf.math.square(tf.math.maximum(margin-y_pred, 0.))
-    loss=0.5 * ( y_true*positive_pair + ((1.-y_true)*negative_pair) )
+    return Accuracy
 
-    return tf.math.reduce_mean(loss)
+def ContrastiveLoss(margin=1.):
+    def Loss(y_true, y_pred):
+        positive_pair=tf.math.square(y_pred)
+        negative_pair=tf.math.square(tf.math.maximum(margin-y_pred, 0.))
+        loss=0.5 * ( y_true*positive_pair + ((1.-y_true)*negative_pair) )
+
+        return tf.math.reduce_mean(loss)
+        
+    return Loss
 
 class EuclideanDistance(tf.keras.layers.Layer):
     def call(self,inputs):

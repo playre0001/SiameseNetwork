@@ -7,9 +7,9 @@ from tensorflow.python.framework.ops import eager_run
 from tensorflow.python.keras import activations
 from tensorflow.python.keras.layers.core import Dense
 
-from SiameseNetwork import SiameseNetwork,ContrastiveLoss
+from SiameseNetwork import SiameseNetwork,ContrastiveLoss,SiameseAccuracy
 
-def CreateDataset(data_num=2000,dir_path=os.path.join("dogs-vs-cats","train","train")):
+def CreateDataset(data_num=4000,dir_path=os.path.join("dogs-vs-cats","train","train")):
     #Make dataset directory which is train, validation, test
     dataset_path={
         "train"       : os.path.join("Temp","train"),
@@ -45,7 +45,7 @@ def CreateDataset(data_num=2000,dir_path=os.path.join("dogs-vs-cats","train","tr
 
     return dataset_path,data
 
-def CreatePairs(dataset_path,data,create_pair_num=2000):
+def CreatePairs(dataset_path,data,create_pair_num=4000):
     temp={}
 
     for type,choice_num in zip(("train","validation","test"),(int(create_pair_num*0.5),int(create_pair_num*0.25),int(create_pair_num*0.25))):
@@ -137,21 +137,23 @@ if __name__=="__main__":
     # 内容は[[imageAのpathを格納したリスト], [imageBのpathを格納したリスト], [imageAとimageBのペアのラベル(同じか否か)]]
     
     train_pairs,validation_pairs,test_pairs=CreatePairs(*CreateDataset())
-    
+
     # ========================================================================================================================
 
     train,validation,test=CreateTFDataset(train_pairs,validation_pairs,test_pairs)
 
+    margin=1.
+
     # EuclideanDistance + ContrastiveLoss を用いた場合
     sn=SiameseNetwork()
-    sn.compile(optimizer="adagrad",loss=ContrastiveLoss,metrics=tf.keras.metrics.BinaryAccuracy(threshold=0.5))
+    sn.compile(optimizer="adagrad",loss=ContrastiveLoss(margin=margin),metrics=SiameseAccuracy(threshold=margin))
 
     print("<< Feauture Extraction >>")
-    sn.fit(train,validation_data=validation,epochs=10)
+    sn.fit(train,validation_data=validation,epochs=50)
 
     print("<< Finetuning >>")
     sn.trainable=True
-    sn.fit(train,validation_data=validation,epochs=20)
+    sn.fit(train,validation_data=validation,epochs=300)
 
     print("<< Evaluate >>")
     sn.evaluate(test)
@@ -168,14 +170,14 @@ if __name__=="__main__":
             tf.keras.layers.Dense(1,activation="sigmoid")
         ]
     )
-    sn.compile(optimizer="adagrad",loss="binary_crossentropy",metrics=tf.keras.metrics.BinaryAccuracy(threshold=0.5))
+    sn.compile(optimizer="adagrad",loss=ContrastiveLoss(margin=margin),metrics=SiameseAccuracy(threshold=margin))
 
     print("<< Feauture Extraction >>")
-    sn.fit(train,validation_data=validation,epochs=10)
+    sn.fit(train,validation_data=validation,epochs=50)
 
     print("<< Finetuning >>")
     sn.trainable=True
-    sn.fit(train,validation_data=validation,epochs=20)
+    sn.fit(train,validation_data=validation,epochs=300)
 
     print("<< Evaluate >>")
     sn.evaluate(test)
