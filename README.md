@@ -37,3 +37,7 @@ Input the command bellow, and press Enter.
 ```
 python test_learning.py
 ```
+
+# Customize
+
+To use classes in SiameseNetwork.py, please refer code in test_learning.py
