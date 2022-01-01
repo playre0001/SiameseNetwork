@@ -149,11 +149,11 @@ if __name__=="__main__":
     sn.compile(optimizer="adagrad",loss=ContrastiveLoss(margin=margin),metrics=SiameseAccuracy(threshold=margin))
 
     print("<< Feauture Extraction >>")
-    sn.fit(train,validation_data=validation,epochs=50)
+    sn.fit(train,validation_data=validation,epochs=10)
 
     print("<< Finetuning >>")
     sn.trainable=True
-    sn.fit(train,validation_data=validation,epochs=300)
+    sn.fit(train,validation_data=validation,epochs=30)
 
     print("<< Evaluate >>")
     sn.evaluate(test)
@@ -173,11 +173,11 @@ if __name__=="__main__":
     sn.compile(optimizer="adagrad",loss=ContrastiveLoss(margin=margin),metrics=SiameseAccuracy(threshold=margin))
 
     print("<< Feauture Extraction >>")
-    sn.fit(train,validation_data=validation,epochs=50)
+    sn.fit(train,validation_data=validation,epochs=10)
 
     print("<< Finetuning >>")
     sn.trainable=True
-    sn.fit(train,validation_data=validation,epochs=300)
+    sn.fit(train,validation_data=validation,epochs=30)
 
     print("<< Evaluate >>")
     sn.evaluate(test)
